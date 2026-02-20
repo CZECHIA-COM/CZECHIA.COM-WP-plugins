@@ -1,8 +1,8 @@
 # CZECHIA.COM-WP-plugins
 WordPress plugins for CZECHIA.COM customers
 
-Tento repozitář obsahuje interní WordPress pluginy vyvíjené společností **CzECHIA.COM**  
-pro potřeby našich zákazníků a služeb **CzECHIA.COM** a **Slovaknet.sk**.
+Tento repozitář obsahuje interní WordPress pluginy vyvíjené společností **CZECHIA.COM**  
+pro potřeby našich zákazníků a služeb **CZECHIA.COM** a **Slovaknet.sk**.
 
 ## 📌 Důležité upozornění
 
@@ -10,7 +10,7 @@ Tyto pluginy **nejsou open-source** a **nejsou určeny k obecnému použití**.
 
 Použití pluginů je **technicky omezeno** na:
 - WordPress instalace provozované na serverech a infrastruktuře  
-  **CzECHIA.COM** a **Slovaknet.sk**
+  **CZECHIA.COM** a **Slovaknet.sk**
 - IP adresy našich serverů a služeb
 
 Na jiných serverech nebo IP adresách **pluginy nebudou fungovat**.
@@ -28,7 +28,7 @@ Na jiných serverech nebo IP adresách **pluginy nebudou fungovat**.
 
 ## ❌ Co NENÍ povoleno
 
-- použití pluginů mimo infrastrukturu CzECHIA.COM a slovaknet.sk
+- použití pluginů mimo infrastrukturu CZECHIA.COM a slovaknet.sk
 - redistribuce (kopírování, sdílení, balení)
 - provozování na vlastních nebo třetích serverech
 - vytváření forků za účelem vlastního nasazení
@@ -54,4 +54,4 @@ Tento projekt je licencován pod **Custom Proprietary License** – viz soubor [
 
 ---
 
-© CzECHIA.COM – All rights reserved
+© CZECHIA.COM – All rights reserved
