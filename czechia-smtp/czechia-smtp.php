@@ -2,9 +2,35 @@
 /**
  * Plugin Name: CZECHIA - odesílání emailů přes SMTP
  * Description: Nastavte odesílání emailů přes SMTP server Czechia.
- * Version: 1.1
+ * Version: 1.2
  * Author: ZONER a.s.
  */
+
+if (!function_exists('openssl_encrypt')) {
+    function czechia_smtp_encrypt($plaintext) {
+        return base64_encode($plaintext);
+    }
+    function czechia_smtp_decrypt($encoded) {
+        return base64_decode($encoded);
+    }
+} else {
+    function czechia_smtp_encrypt($plaintext) {
+        $key = hash('sha256', AUTH_KEY . SECURE_AUTH_KEY, true);
+        $iv = openssl_random_pseudo_bytes(16);
+        $ciphertext = openssl_encrypt($plaintext, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
+        return 'enc:' . base64_encode($iv . $ciphertext);
+    }
+    function czechia_smtp_decrypt($encoded) {
+        if (strpos($encoded, 'enc:') !== 0) {
+            return base64_decode($encoded);
+        }
+        $key = hash('sha256', AUTH_KEY . SECURE_AUTH_KEY, true);
+        $data = base64_decode(substr($encoded, 4));
+        $iv = substr($data, 0, 16);
+        $ciphertext = substr($data, 16);
+        return openssl_decrypt($ciphertext, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
+    }
+}
 
 function czechia_smtp_register_settings() {
     register_setting('czechia_smtp_group', 'czechia_smtp_settings');
@@ -349,7 +375,7 @@ function czechia_smtp_ajax_save_test() {
             'auth' => 1,
             'user' => sanitize_email($_POST['user']),
             'from_name' => $old_settings['from_name'] ?: get_bloginfo('name'),
-            'pass' => !empty($_POST['pass']) ? base64_encode($_POST['pass']) : $old_settings['pass'],
+            'pass' => !empty($_POST['pass']) ? czechia_smtp_encrypt($_POST['pass']) : $old_settings['pass'],
             'enabled' => 0,
             'last_tab' => 'simple',
         ];
@@ -362,7 +388,7 @@ function czechia_smtp_ajax_save_test() {
             'auth' => intval($_POST['auth']),
             'user' => sanitize_text_field($_POST['user']),
             'from_name' => sanitize_text_field($_POST['from_name']),
-            'pass' => !empty($_POST['pass']) ? base64_encode($_POST['pass']) : $old_settings['pass'],
+            'pass' => !empty($_POST['pass']) ? czechia_smtp_encrypt($_POST['pass']) : $old_settings['pass'],
             'last_tab' => 'advanced',
         ];
     }
@@ -435,7 +461,7 @@ function czechia_smtp_phpmailer($phpmailer) {
 
     if ($s['auth']) {
         $phpmailer->Username = $s['user'];
-        $phpmailer->Password = base64_decode($s['pass']);
+        $phpmailer->Password = czechia_smtp_decrypt($s['pass']);
     }
 }
 add_action('phpmailer_init', 'czechia_smtp_phpmailer');
