@@ -146,7 +146,7 @@ function czechia_smtp_render_settings() {
         <?php if ($active_tab === 'simple'): ?>
 
         <div class="czechia-smtp-tab-content">
-            <p>Zadejte svůj email a heslo. Ostatní nastavení se vyplní automaticky. <a href="https://napoveda.czechia.com/clanek/odesilani-emailu-pres-autentizovany-smtp-server/" target="_blank" style="text-decoration:none;"><span class="dashicons dashicons-editor-help" style="font-size:18px; width:18px; height:18px; vertical-align:text-bottom; margin-right:2px;"></span><span style="text-decoration:underline;">Co mám vyplnit?</span></a></p>
+            <p>Zadejte svůj email a heslo. Ostatní nastavení se vyplní automaticky. <a href="https://napoveda.czechia.com/clanek/czechia-smtp-plugin-pro-wordpress/" target="_blank" style="text-decoration:none;"><span class="dashicons dashicons-editor-help" style="font-size:18px; width:18px; height:18px; vertical-align:text-bottom; margin-right:2px;"></span><span style="text-decoration:underline;">Co mám vyplnit?</span></a></p>
 
             <table class="form-table">
                 <tr>
