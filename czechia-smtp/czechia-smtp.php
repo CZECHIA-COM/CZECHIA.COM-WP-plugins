@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: CZECHIA - odesílání emailů přes SMTP
- * Description: Nastavte odesílání emailů přes SMTP server Czechia.
- * Version: 1.2
+ * Description: Nastavte odesílání emailů přes SMTP server CZECHIA.
+ * Version: 1.3
  * Author: ZONER a.s.
  */
 

@@ -2,8 +2,8 @@
 /*
 Plugin Name: Zoner AI
 Description: Využívejte umělou inteligenci od Zoneru.
-Version: 1.0
-Author: Zoner a.s.
+Version: 1.1
+Author: ZONER a.s.
 */
 
 if (!defined('ABSPATH')) {
