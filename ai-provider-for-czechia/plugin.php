@@ -5,7 +5,7 @@
  * Description: AI konektor CZECHIA pro WordPress – generování textů a obrázků pro zákazníky CZECHIA zdarma.
  * Requires at least: 6.9
  * Requires PHP: 7.4
- * Version: 1.2
+ * Version: 1.2.1
  * Author: ZONER a.s.
  * Text Domain: ai-provider-for-czechia
  *

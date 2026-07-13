@@ -90,7 +90,7 @@ class CzechiaProvider extends AbstractApiProvider
          */
         $providerMetadataArgs = [
             'czechia',
-            'CZECHIA',
+            'ZonerAI',
             ProviderTypeEnum::cloud(),
             null,
             RequestAuthenticationMethod::apiKey(),
@@ -99,16 +99,16 @@ class CzechiaProvider extends AbstractApiProvider
         if (version_compare(AiClient::VERSION, '1.2.0', '>=')) {
             if (function_exists('__')) {
                 $providerMetadataArgs[] = __(
-                    'Generování textů a obrázků s CZECHIA AI.',
+                    'Generování textů a obrázků pomocí ZonerAI.',
                     'ai-provider-for-czechia'
                 );
             } else {
-                $providerMetadataArgs[] = 'Generování textů a obrázků s CZECHIA AI.';
+                $providerMetadataArgs[] = 'Generování textů a obrázků pomocí ZonerAI.';
             }
         }
         // Provider logoPath support was added in 1.3.0.
         if (version_compare(AiClient::VERSION, '1.3.0', '>=')) {
-            $providerMetadataArgs[] = dirname(__DIR__, 2) . '/assets/images/czechia.svg';
+            $providerMetadataArgs[] = dirname(__DIR__, 2) . '/assets/images/zoner_ai_logo.svg';
         }
         return new ProviderMetadata(...$providerMetadataArgs);
     }
