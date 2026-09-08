@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CZECHIA - SEO
  * Description: Základní SEO nastavení – titulky, popisy, Open Graph, canonical, robots, sitemap.
- * Version: 1.1
+ * Version: 1.2
  * Author: ZONER a.s.
  */
 
@@ -11,6 +11,7 @@ defined('ABSPATH') || exit;
 define('CZECHIA_SEO_DIR', plugin_dir_path(__FILE__));
 define('CZECHIA_SEO_URL', plugin_dir_url(__FILE__));
 define('CZECHIA_SEO_AI_KEY', 'BWRWi45UezGGZgieHGxlT7M17FlAwuio');
+define('CZECHIA_SEO_AI_URL', 'https://llm.airgpt.cz');
 
 require_once CZECHIA_SEO_DIR . 'includes/conflicts.php';
 require_once CZECHIA_SEO_DIR . 'includes/admin-settings.php';
@@ -145,6 +146,55 @@ function czechia_seo_action_links($links) {
 add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'czechia_seo_action_links');
 
 /* ─── AI generation AJAX handler ─── */
+
+/**
+ * Zjistí, který model použít – načte aktuální seznam z /v1/models.
+ * Preferuje model, jehož ID obsahuje "gemma", jinak vezme první vrácený.
+ *
+ * @return string|WP_Error ID modelu nebo chyba.
+ */
+function czechia_seo_ai_get_model() {
+    $response = wp_remote_get(CZECHIA_SEO_AI_URL . '/v1/models', [
+        'timeout' => 20,
+        'headers' => [
+            'Authorization' => 'Bearer ' . CZECHIA_SEO_AI_KEY,
+        ],
+    ]);
+
+    if (is_wp_error($response)) {
+        return new WP_Error('czechia_seo_models', 'Nepodařilo se načíst seznam AI modelů: ' . $response->get_error_message());
+    }
+
+    $code = wp_remote_retrieve_response_code($response);
+    if ($code !== 200) {
+        return new WP_Error('czechia_seo_models', 'Seznam AI modelů vrátil chybu (HTTP ' . $code . ').');
+    }
+
+    $body = json_decode(wp_remote_retrieve_body($response), true);
+    if (empty($body['data']) || !is_array($body['data'])) {
+        return new WP_Error('czechia_seo_models', 'Seznam AI modelů je prázdný.');
+    }
+
+    $models = [];
+    foreach ($body['data'] as $model) {
+        if (!empty($model['id'])) {
+            $models[] = (string) $model['id'];
+        }
+    }
+
+    if (empty($models)) {
+        return new WP_Error('czechia_seo_models', 'Seznam AI modelů je prázdný.');
+    }
+
+    foreach ($models as $id) {
+        if (stripos($id, 'gemma') !== false) {
+            return $id;
+        }
+    }
+
+    return $models[0];
+}
+
 function czechia_seo_ai_generate() {
     check_ajax_referer('czechia_seo_ai', 'nonce');
 
@@ -157,16 +207,22 @@ function czechia_seo_ai_generate() {
         wp_send_json_error('Nebyl předán žádný obsah článku.');
     }
 
+    /* Před každým generováním zjistíme aktuálně dostupný model. */
+    $model = czechia_seo_ai_get_model();
+    if (is_wp_error($model)) {
+        wp_send_json_error($model->get_error_message());
+    }
+
     $prompt = 'Udělej mi meta title a meta description k tomuto textu, respektuj délku maximálně 60 znaků pro meta title a 140 znaků pro meta description. DODRŽUJ DÉLKU ZNAKŮ, nesmí to být více. Nevracej nic jiného, než samotný text. Title a description odděl novým řádkem. Text: ' . $content;
 
-    $response = wp_remote_post('https://llm.airgpt.cz/api/chat', [
+    $response = wp_remote_post(CZECHIA_SEO_AI_URL . '/v1/chat/completions', [
         'timeout' => 60,
         'headers' => [
             'Content-Type'  => 'application/json',
             'Authorization' => 'Bearer ' . CZECHIA_SEO_AI_KEY,
         ],
         'body' => wp_json_encode([
-            'model'   => 'gemma3:27b',
+            'model'   => $model,
             'stream'  => false,
             'messages' => [
                 [
@@ -188,13 +244,9 @@ function czechia_seo_ai_generate() {
 
     $body = json_decode(wp_remote_retrieve_body($response), true);
 
-    if (empty($body) || empty($body['done']) || $body['done_reason'] !== 'stop') {
-        wp_send_json_error('AI nevrátila platnou odpověď. Zkuste to znovu.');
-    }
-
-    $text = isset($body['message']['content']) ? $body['message']['content'] : '';
+    $text = isset($body['choices'][0]['message']['content']) ? $body['choices'][0]['message']['content'] : '';
     if (empty($text)) {
-        wp_send_json_error('AI vrátila prázdnou odpověď.');
+        wp_send_json_error('AI nevrátila platnou odpověď. Zkuste to znovu.');
     }
 
     /* Parse title and description (separated by newline) */
